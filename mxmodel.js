@@ -142,6 +142,8 @@ mxmodel.publish = function(message) {
 
 mxmodel.listen = function() {
   this.mxmqtt.listen();
+  this.mxmqtt.mqtt.on('connect', mxmodel.connect);
+  this.mxmqtt.mqtt.on('close', mxmodel.close);
 };
 
 mxmodel.setMxMqtt = function(setting, value) {
@@ -196,9 +198,6 @@ function createMxModel(options) {
 
   mxmodel.setMxMqtt('host', options.host);
   mxmodel.setMxMqtt('port', options.port);
-
-  mxmodel.mxmqtt.mqtt.on('connect', mxmodel.connect);
-  mxmodel.mxmqtt.mqtt.on('close', mxmodel.close);
 
   return mxmodel;
 }
