@@ -12,6 +12,8 @@ var bunyan = require('bunyan'),
 mxmodel.set('resources', ['/network/cellular']);
 mxmodel.set('role', 'view');
 
+mxmodel.listen();
+
 mxmodel.on('registered', function() {
   mxmodel.request({
     method: 'get',
