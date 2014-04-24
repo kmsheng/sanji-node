@@ -15,5 +15,9 @@
     "utils-merge": "^1.0.0",
     "bunyan": "^0.22.3",
     "crypto": "0.0.3"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git@bitbucket.org:moxa-tw/mxmqtt.git"
   }
 }
