@@ -197,8 +197,6 @@ function createMxModel(options) {
   mxmodel.setMxMqtt('host', options.host);
   mxmodel.setMxMqtt('port', options.port);
 
-  mxmodel.listen();
-
   mxmodel.mxmqtt.mqtt.on('connect', mxmodel.connect);
   mxmodel.mxmqtt.mqtt.on('close', mxmodel.close);
 
