@@ -1,0 +1,12 @@
+{
+  "name": "mxmqtt",
+  "version": "0.0.0",
+  "description": "Moxa MQTT Client",
+  "main": "mxmodel.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "",
+  "license": "ISC",
+  "private": true
+}
