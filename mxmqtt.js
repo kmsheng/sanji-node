@@ -122,7 +122,7 @@ MxMqtt.prototype.subscribe = function(topic, options) {
 
   var deferred = q.defer();
 
-  this.mqtt.subscribe(topic, options, function(err, granted) {
+  this.mqtt.subscribe(topic, options, function(err) {
 
     if (err) {
       deferred.reject(err);
@@ -143,7 +143,7 @@ MxMqtt.prototype.unsubscribe = function(topic) {
 
   var deferred = q.defer();
 
-  this.mqtt.unsubscribe(topic, function(err, granted) {
+  this.mqtt.unsubscribe(topic, function() {
       deferred.resolve();
   });
 
