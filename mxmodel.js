@@ -261,6 +261,21 @@ var resourceToRegExp = function(resource) {
     if ((1 === arguments.length) && ('get' === method)) {
       return this.settings[key];
     }
+
+    var resource = key,
+        paramNames = parseParam(resource);
+
+    if (! this.routes[method]) {
+      this.routes[method] = [];
+    }
+
+    this.routes[method].push({
+      resource: resource,
+      regexp: resourceToRegExp(resource),
+      callback: callback,
+      paramNames: paramNames
+    });
+
   };
 });
 
