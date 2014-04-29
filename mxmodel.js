@@ -79,7 +79,7 @@ mxmodel.deregister = function() {
       log.debug('[%s] De-Register successfully !', name);
   })
   .catch(function(err) {
-    deferred.reject();
+    deferred.reject(err);
     log.debug('[%s] De-Register error !', name);
   });
 
