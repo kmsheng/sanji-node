@@ -4,17 +4,33 @@
  */
 
 var crypto = require('crypto'),
-    eventEmitter = require('events').EventEmitter,
     log = require('bunyan').log,
     url = require('url'),
     mixin = require('utils-merge'),
-    mxmodel = {},
-    mxmqtt = require('./mxmqtt'),
+    MxMqtt = require('./mxmqtt'),
     q = require('q'),
     qs = require('qs'),
-    utils = require('./mxutils');
+    util = require('util'),
+    MxUtils = require('./mxutils');
 
-mxmodel.defaultConfig = function() {
+function MxModel(options) {
+
+  MxUtils.call(this);
+
+  this.defaultConfig();
+  this.mxmqtt = new MxMqtt();
+
+  options = options || {};
+  options.host = options.host || 'localhost';
+  options.port = options.port || 1883;
+
+  this.setMxMqtt('host', options.host);
+  this.setMxMqtt('port', options.port);
+}
+
+util.inherits(MxModel, MxUtils);
+
+MxModel.prototype.defaultConfig = function() {
 
   this.set('description', 'This is a model without description.');
   this.set('hook', []);
@@ -37,7 +53,7 @@ mxmodel.defaultConfig = function() {
   this.routes = [];
 };
 
-mxmodel.setTunnel = function(newTunnel) {
+MxModel.prototype.setTunnel = function(newTunnel) {
 
   var deferred = q.defer(),
       name = this.get('name'),
@@ -62,7 +78,7 @@ mxmodel.setTunnel = function(newTunnel) {
   return deferred.promise;
 };
 
-mxmodel.deregister = function() {
+MxModel.prototype.deregister = function() {
 
   var deferred = q.defer(),
       name = this.get('name'),
@@ -88,7 +104,7 @@ mxmodel.deregister = function() {
   return deferred.promise;
 };
 
-mxmodel.getRegistrationInfo = function() {
+MxModel.prototype.getRegistrationInfo = function() {
 
   var modelInfo = ['name', 'resources', 'role', 'hook', 'description', 'tunnel', 'ttl'],
       properties = {};
@@ -99,11 +115,11 @@ mxmodel.getRegistrationInfo = function() {
   return properties;
 };
 
-mxmodel.request = function(message) {
+MxModel.prototype.request = function(message) {
   return this.mxmqtt.request(this.get('topic'), message);
 };
 
-mxmodel.register = function() {
+MxModel.prototype.register = function() {
 
   var deferred = q.defer(),
       name = this.get('name'),
@@ -139,13 +155,13 @@ mxmodel.register = function() {
   return deferred.promise;
 };
 
-mxmodel.publish = function(message) {
+MxModel.prototype.publish = function(message) {
   this.mxmqtt.publish(this.get('topic'), message);
 };
 
-mxmodel.onMessage = function(topic, message) {
+MxModel.prototype.onMessage = function(topic, message) {
 
-    var routes = mxmodel.routes[message.method];
+    var routes = this.routes[message.method];
 
     if (! Array.isArray(routes)) {
       log.info('Did not declare this method.');
@@ -198,24 +214,24 @@ mxmodel.onMessage = function(topic, message) {
     }
 };
 
-mxmodel.listen = function() {
+MxModel.prototype.listen = function() {
   this.mxmqtt.listen();
-  this.mxmqtt.mqtt.on('connect', mxmodel.connect);
-  this.mxmqtt.on('message', mxmodel.onMessage);
-  this.mxmqtt.mqtt.on('close', mxmodel.close);
+  this.mxmqtt.mqtt.on('connect', this.connect.bind(this));
+  this.mxmqtt.on('message', this.onMessage.bind(this));
+  this.mxmqtt.mqtt.on('close', this.close.bind(this));
 };
 
-mxmodel.setMxMqtt = function(setting, value) {
+MxModel.prototype.setMxMqtt = function(setting, value) {
   return this.mxmqtt.set(setting, value);
 };
 
-mxmodel.getMxMqtt = function(setting) {
+MxModel.prototype.getMxMqtt = function(setting) {
   return this.mxmqtt.get(setting);
 };
 
-mxmodel.connect = function() {
+MxModel.prototype.connect = function() {
 
-  var self = mxmodel,
+  var self = this,
       name = self.get('name');
 
   log.debug('[%s] MxMQTT is connecting...', name);
@@ -256,7 +272,7 @@ var resourceToRegExp = function(resource) {
 
 ['get', 'post', 'put', 'delete'].forEach(function(method) {
 
-  mxmodel[method] = function(key, callback) {
+  MxModel.prototype[method] = function(key, callback) {
 
     if ((1 === arguments.length) && ('get' === method)) {
       return this.settings[key];
@@ -279,32 +295,11 @@ var resourceToRegExp = function(resource) {
   };
 });
 
-mxmodel.close = function() {
+MxModel.prototype.close = function() {
 
-  var self = mxmodel;
+  var self = this;
   self.disable('registered');
   log.warn("[%s] MxMQTT can't connect to %s", self.getMxMqtt('name'), self.getMxMqtt('host') + ':' + self.getMxMqtt('port'));
 };
 
-function createMxModel(options) {
-
-  mixin(mxmodel, utils);
-  mixin(mxmodel, eventEmitter.prototype);
-
-  mxmodel.init();
-  mxmodel.defaultConfig();
-
-  mxmodel.mxmqtt = mxmqtt();
-
-  options = options || {};
-  options.host = options.host || 'localhost';
-  options.port = options.port || 1883;
-
-  mxmodel.setMxMqtt('host', options.host);
-  mxmodel.setMxMqtt('port', options.port);
-
-  return mxmodel;
-}
-
-exports = module.exports = createMxModel;
-
+exports = module.exports = MxModel;

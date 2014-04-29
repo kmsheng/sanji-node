@@ -2,17 +2,14 @@
 
 var bunyan = require('bunyan'),
     log = bunyan.log = bunyan.createLogger({name: 'mxcloud', level: 'trace'}),
-    mxmodel = require('./mxmodel')({'host': '192.168.27.133'});
+    MxModel = require('./mxmodel');
 
-mxmodel.set('resources', ['/network/cellular']);
+var mxmodel = new MxModel({host: '192.168.27.133'});
+
+mxmodel.set('name', 'test');
 mxmodel.set('role', 'view');
+mxmodel.set('resources', [
+    '/'
+]);
 
-mxmodel.on('registered', function() {
-  mxmodel.request({
-    method: 'get',
-    resource: '/network/cellular/1'
-  })
-  .then(function(message) {
-    log.warn(message);
-  });
-});
+mxmodel.listen();

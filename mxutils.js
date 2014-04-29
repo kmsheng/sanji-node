@@ -1,12 +1,14 @@
 
-/**
- * Initialize default settings.
- *
- * @api public
- */
-exports.init = function() {
+var eventEmitter = require('events').EventEmitter,
+    util = require('util');
+
+function MxUtils() {
+
   this.settings = {};
-};
+  eventEmitter.call(this);
+}
+
+util.inherits(MxUtils, eventEmitter);
 
 /**
  * Set the settings' value.
@@ -14,7 +16,7 @@ exports.init = function() {
  * @api public
  */
 
-exports.set = function(setting, value) {
+MxUtils.prototype.set = function(setting, value) {
   this.settings[setting] = value;
   return this;
 };
@@ -25,7 +27,7 @@ exports.set = function(setting, value) {
  * @api public
  */
 
-exports.enable = function(setting) {
+MxUtils.prototype.enable = function(setting) {
   return this.set(setting, true);
 };
 
@@ -35,7 +37,7 @@ exports.enable = function(setting) {
  * @api public
  */
 
-exports.disable = function(setting) {
+MxUtils.prototype.disable = function(setting) {
   return this.set(setting, false);
 };
 
@@ -45,7 +47,7 @@ exports.disable = function(setting) {
  * @api public
  */
 
-exports.enabled = function(setting) {
+MxUtils.prototype.enabled = function(setting) {
   return !!this.get(setting);
 };
 
@@ -54,6 +56,8 @@ exports.enabled = function(setting) {
  *
  * @api public
  */
-exports.disabled = function(setting) {
+MxUtils.prototype.disabled = function(setting) {
   return !this.get(setting);
 };
+
+exports = module.exports = MxUtils;

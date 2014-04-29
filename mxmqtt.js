@@ -4,19 +4,22 @@
  * MxCloud MQTT
  */
 
-var eventEmitter = require('events').EventEmitter,
-    log = require('bunyan').log,
+var log = require('bunyan').log,
     mixin = require('utils-merge'),
     mqtt = require('mqtt'),
-    mxmqtt = {},
     q = require('q'),
-    utils = require('./mxutils');
+    util = require('util'),
+    MxUtils = require('./mxutils');
 
-/**
- * Expose `createMxMqtt()`.
- */
+function MxMqtt() {
 
-exports = module.exports = createMxMqtt;
+  MxUtils.call(this);
+
+  this.defaultConfig();
+  this.deferredList = {};
+}
+
+util.inherits(MxMqtt, MxUtils);
 
 /**
  * Apply default config.
@@ -24,7 +27,7 @@ exports = module.exports = createMxMqtt;
  * @api private
  */
 
-mxmqtt.defaultConfig = function() {
+MxMqtt.prototype.defaultConfig = function() {
   this.set('name', 'MxMqtt');
   this.set('port', 1883);
   this.set('host', 'localhost');
@@ -37,7 +40,7 @@ mxmqtt.defaultConfig = function() {
  * @api private
  */
 
-mxmqtt.receive = function(topic, message) {
+MxMqtt.prototype.receive = function(topic, message) {
 
     var parsedMessage;
 
@@ -80,7 +83,7 @@ mxmqtt.receive = function(topic, message) {
  * @api public
  */
 
-mxmqtt.get = function(setting) {
+MxMqtt.prototype.get = function(setting) {
   return this.settings[setting];
 };
 
@@ -90,7 +93,7 @@ mxmqtt.get = function(setting) {
  * @api public
  */
 
-mxmqtt.listen = function() {
+MxMqtt.prototype.listen = function() {
 
   this.mqtt = mqtt.createClient(this.get('port'), this.get('host'));
   this.mqtt.on('message', this.receive.bind(this));
@@ -102,7 +105,7 @@ mxmqtt.listen = function() {
  * @api private
  */
 
-mxmqtt.genMessageId = function(min, max) {
+MxMqtt.prototype.genMessageId = function(min, max) {
   return Math.floor(Math.random() * (max - min + 1)) + min;
 };
 
@@ -112,7 +115,7 @@ mxmqtt.genMessageId = function(min, max) {
  * @api private
  */
 
-mxmqtt.setMessageId = function(message) {
+MxMqtt.prototype.setMessageId = function(message) {
 
   if (('object' === typeof message) && !message.hasOwnProperty('id')) {
     message.id = this.genMessageId(1, 10000);
@@ -126,7 +129,7 @@ mxmqtt.setMessageId = function(message) {
  * @api public
  */
 
-mxmqtt.subscribe = function(topic, options) {
+MxMqtt.prototype.subscribe = function(topic, options) {
 
   var deferred = q.defer();
 
@@ -148,7 +151,7 @@ mxmqtt.subscribe = function(topic, options) {
  * @api public
  */
 
-mxmqtt.unsubscribe = function(topic) {
+MxMqtt.prototype.unsubscribe = function(topic) {
 
   var deferred = q.defer();
 
@@ -164,7 +167,7 @@ mxmqtt.unsubscribe = function(topic) {
  *
  * @api public
  */
-mxmqtt.publish = function(topic, message) {
+MxMqtt.prototype.publish = function(topic, message) {
 
   var parsedMessage = JSON.stringify(message);
 
@@ -176,7 +179,7 @@ mxmqtt.publish = function(topic, message) {
  *
  * @api public
  */
-mxmqtt.isValidRequestFormat = function(message) {
+MxMqtt.prototype.isValidRequestFormat = function(message) {
   return ('object' === typeof message) && message.id && message.method && message.resource;
 };
 
@@ -185,7 +188,7 @@ mxmqtt.isValidRequestFormat = function(message) {
  *
  * @api public
  */
-mxmqtt.isValidResponseFormat = function(message) {
+MxMqtt.prototype.isValidResponseFormat = function(message) {
   return ('object' === typeof message) && message.id && message.code;
 };
 
@@ -194,7 +197,7 @@ mxmqtt.isValidResponseFormat = function(message) {
  *
  * @api public
  */
-mxmqtt.request = function(topic, message) {
+MxMqtt.prototype.request = function(topic, message) {
 
   var deferred = q.defer();
 
@@ -213,21 +216,4 @@ mxmqtt.request = function(topic, message) {
   return deferred.promise;
 };
 
-/**
- * Publish MQTT message.
- *
- * @return {Function}
- * @api public
- */
-
-function createMxMqtt() {
-
-  mixin(mxmqtt, utils);
-  mixin(mxmqtt, eventEmitter.prototype);
-
-  mxmqtt.init();
-  mxmqtt.defaultConfig();
-  mxmqtt.deferredList = {};
-
-  return mxmqtt;
-}
+exports = module.exports = MxMqtt;
