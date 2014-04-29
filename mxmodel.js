@@ -248,6 +248,12 @@ var parseParam = function(url) {
   return names;
 };
 
+var resourceToRegExp = function(resource) {
+  var replacedStr = resource.replace(/:[\w\-]+/g, '([\\w\\-\\_]+)')
+                      .replace(/\//g, '\\/');
+  return new RegExp('^' + replacedStr + '$');
+};
+
 ['get', 'post', 'put', 'delete'].forEach(function(method) {
 
   mxmodel[method] = function(key, callback) {
