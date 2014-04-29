@@ -234,6 +234,20 @@ mxmodel.connect = function() {
   }
 };
 
+var parseParam = function(url) {
+
+  var names = [],
+      matches = url.match(/:([\w\_\-]+)/g);
+
+  matches = matches ? matches : [];
+
+  matches.forEach(function(name) {
+    names.push(name.replace(':', ''));
+  });
+
+  return names;
+};
+
 ['get', 'post', 'put', 'delete'].forEach(function(method) {
 
   mxmodel[method] = function(key, callback) {
