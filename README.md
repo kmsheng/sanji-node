@@ -7,7 +7,7 @@
 ```
 var bunyan = require('bunyan'),
     log = bunyan.log = bunyan.createLogger({name: 'mxcloud', level: 'trace'}),
-    MxModel = require('./mxmodel');
+    MxModel = require('mxmqtt');
 
 var mxmodel = new MxModel({'host': '192.168.27.133'});
 
