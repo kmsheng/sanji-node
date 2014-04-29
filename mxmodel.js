@@ -34,7 +34,7 @@ mxmodel.defaultConfig = function() {
   this.set('ttl', 5);
   this.set('tunnel', 'TempTunnel_' + crypto.randomBytes(8).toString('hex'));
 
-  this.callbacks = [];
+  this.routes = [];
 };
 
 mxmodel.setTunnel = function(newTunnel) {
@@ -195,8 +195,6 @@ mxmodel.connect = function() {
     if ((1 === arguments.length) && ('get' === method)) {
       return this.settings[key];
     }
-    var resource = key;
-    this.callbacks[resource + ':' + method] = callback;
   };
 });
 
