@@ -57,7 +57,7 @@ MxMqtt.prototype.receive = function(topic, message) {
 
       if (! this.deferredList.hasOwnProperty(message.id)) {
         log.info('A message without message ID.', message);
-        return false;
+        return;
       }
 
       if (200 === message.code) {
@@ -66,12 +66,12 @@ MxMqtt.prototype.receive = function(topic, message) {
         this.deferredList[message.id].reject(message);
       }
       delete this.deferredList[message.id];
-      return true;
+      return;
     }
 
     if (this.isValidRequestFormat(message)) {
       this.emit('message', topic, message);
-      return true;
+      return;
     }
 };
 
