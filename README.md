@@ -23,4 +23,9 @@ mxmodel.on('registered', function() {
     log.warn(message);
   });
 });
+
+// support get, post, put, delete methods
+mxmodel.get('/network/cellular/1', function(message) {
+  // do something here
+});
 ```
