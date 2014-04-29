@@ -369,6 +369,9 @@ var resourceToRegExp = function(resource) {
   };
 });
 
+/**
+ * Callback of mqtt's close event
+ */
 MxModel.prototype.close = function() {
 
   var self = this;
