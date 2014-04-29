@@ -6,10 +6,12 @@
 var crypto = require('crypto'),
     eventEmitter = require('events').EventEmitter,
     log = require('bunyan').log,
+    url = require('url'),
     mixin = require('utils-merge'),
     mxmodel = {},
     mxmqtt = require('./mxmqtt'),
     q = require('q'),
+    qs = require('qs'),
     utils = require('./mxutils');
 
 exports = module.exports = createMxModel;
