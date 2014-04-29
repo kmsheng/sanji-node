@@ -32,6 +32,8 @@ mxmodel.defaultConfig = function() {
   this.set('topic', '/controller');
   this.set('ttl', 5);
   this.set('tunnel', 'TempTunnel_' + crypto.randomBytes(8).toString('hex'));
+
+  this.callbacks = [];
 };
 
 mxmodel.setTunnel = function(newTunnel) {
@@ -143,6 +145,16 @@ mxmodel.publish = function(message) {
 mxmodel.listen = function() {
   this.mxmqtt.listen();
   this.mxmqtt.mqtt.on('connect', mxmodel.connect);
+
+  this.mxmqtt.on('message', function(topic, message) {
+
+    var callback = mxmodel.callbacks[message.resource + ':' + message.method];
+
+    if ('function' === typeof callback) {
+      callback(message);
+    }
+  });
+
   this.mxmqtt.mqtt.on('close', mxmodel.close);
 };
 
@@ -174,6 +186,18 @@ mxmodel.connect = function() {
       });
   }
 };
+
+['get', 'post', 'put', 'delete'].forEach(function(method) {
+
+  mxmodel[method] = function(key, callback) {
+
+    if ((1 === arguments.length) && ('get' === method)) {
+      return this.settings[key];
+    }
+    var resource = key;
+    this.callbacks[resource + ':' + method] = callback;
+  };
+});
 
 mxmodel.close = function() {
 
