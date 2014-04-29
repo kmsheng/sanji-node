@@ -35,7 +35,7 @@ mxmodel.get('/network/cellular/1', function(req, message) {
 {
   "id": 83045209,
   "method": "post",
-  "resource": "/device/123?tag_names=abc,dee,ggg",
+  "resource": "/device/123?tag_names=apple,orange,banana",
   "data": {
     "message": "test"
   }
@@ -43,6 +43,6 @@ mxmodel.get('/network/cellular/1', function(req, message) {
 */
 mxmodel.post('/device/:device_id', function(req, message) {
   console.log(req.params.device_id); // 123
-  console.log(req.query.tag_names);  // first,second
+  console.log(req.query.tag_names);  // apple,orange,banana
 });
 ```
