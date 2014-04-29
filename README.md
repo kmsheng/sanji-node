@@ -25,7 +25,22 @@ mxmodel.on('registered', function() {
 });
 
 // support get, post, put, delete methods
-mxmodel.get('/network/cellular/1', function(message) {
+mxmodel.get('/network/cellular/1', function(req, message) {
   // do something here
+});
+
+/*
+{
+  "id": 83045209,
+  "method": "post",
+  "resource": "/device/123?tag_names=abc,dee,ggg",
+  "data": {
+    "message": "test"
+  }
+}
+*/
+mxmodel.post('/device/:device_id', function(req, message) {
+  console.log(req.params.device_id); // 123
+  console.log(req.query.tag_names);  // first,second
 });
 ```
