@@ -143,19 +143,65 @@ mxmodel.publish = function(message) {
   this.mxmqtt.publish(this.get('topic'), message);
 };
 
+mxmodel.onMessage = function(topic, message) {
+
+    var routes = mxmodel.routes[message.method];
+
+    if (! Array.isArray(routes)) {
+      log.info('Did not declare this method.');
+      return;
+    }
+
+    var buildParams = function(paramNames, paramValues) {
+
+      var params = {},
+          index = 0;
+
+      paramNames.forEach(function(paramName) {
+        params[paramName] = paramValues[index];
+        index++;
+      });
+
+      return params;
+    };
+
+    for (var i in routes) {
+
+      if (! routes.hasOwnProperty(i)) {
+        continue;
+      }
+      var route = routes[i],
+          parts = url.parse(message.resource),
+          matches = route.regexp.exec(parts.pathname);
+
+      if (matches) {
+
+        var req = {};
+        req.params = {};
+
+        matches.shift(); // pop the global one
+        var paramValues = matches;
+
+        log.trace('regexp:', route.regexp);
+        log.trace('resource:', message.resource);
+        log.trace('matches:', matches);
+        log.trace('paramValues', paramValues);
+
+        req.params = buildParams(route.paramNames, paramValues);
+        req.query = qs.parse(parts.query);
+
+        if ('function' === typeof route.callback) {
+          route.callback(req, message);
+          break;
+        }
+      }
+    }
+};
+
 mxmodel.listen = function() {
   this.mxmqtt.listen();
   this.mxmqtt.mqtt.on('connect', mxmodel.connect);
-
-  this.mxmqtt.on('message', function(topic, message) {
-
-    var callback = mxmodel.callbacks[message.resource + ':' + message.method];
-
-    if ('function' === typeof callback) {
-      callback(message);
-    }
-  });
-
+  this.mxmqtt.on('message', mxmodel.onMessage);
   this.mxmqtt.mqtt.on('close', mxmodel.close);
 };
 
