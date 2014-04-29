@@ -373,7 +373,7 @@ MxModel.prototype.close = function() {
 
   var self = this;
   self.disable('registered');
-  log.warn("[%s] MxMQTT can't connect to %s", self.getMxMqtt('name'), self.getMxMqtt('host') + ':' + self.getMxMqtt('port'));
+  log.warn('[%s] MxMQTT can\'t connect to %s', self.getMxMqtt('name'), self.getMxMqtt('host') + ':' + self.getMxMqtt('port'));
 };
 
 exports = module.exports = MxModel;
