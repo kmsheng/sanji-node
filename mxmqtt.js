@@ -114,7 +114,7 @@ mxmqtt.genMessageId = function(min, max) {
 
 mxmqtt.setMessageId = function(message) {
 
-  if (! message.hasOwnProperty('id')) {
+  if (('object' === typeof message) && !message.hasOwnProperty('id')) {
     message.id = this.genMessageId(1, 10000);
   }
   return message;
@@ -177,7 +177,7 @@ mxmqtt.publish = function(topic, message) {
  * @api public
  */
 mxmqtt.isValidRequestFormat = function(message) {
-  return ('object' === typeof message) && message.method && message.resource;
+  return ('object' === typeof message) && message.id && message.method && message.resource;
 };
 
 /**
@@ -198,14 +198,14 @@ mxmqtt.request = function(topic, message) {
 
   var deferred = q.defer();
 
+  message = this.setMessageId(message);
+
   if (! this.isValidRequestFormat(message)) {
     log.error('Invalid request format.');
     deferred.reject();
   } else {
-    message = this.setMessageId(message);
 
     this.deferredList[message.id] = deferred;
-
     this.publish(topic, message);
   }
   log.trace('request', topic, message);
