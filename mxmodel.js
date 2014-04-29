@@ -48,7 +48,7 @@ mxmodel.setTunnel = function(newTunnel) {
 
     this.mxmqtt.unsubscribe(tunnel)
       .then(function() {
-        log.debug('[%s] Unsubscribe %s', name, tunnel)
+        log.debug('[%s] Unsubscribe %s', name, tunnel);
       });
   }
 
