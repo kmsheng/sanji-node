@@ -202,57 +202,57 @@ MxModel.prototype.publish = function(message) {
  */
 MxModel.prototype.onMessage = function(topic, message) {
 
-    var routes = this.routes[message.method];
+  var routes = this.routes[message.method];
 
-    if (! Array.isArray(routes)) {
-      log.info('Did not declare this method.');
-      return;
+  if (! Array.isArray(routes)) {
+    log.info('Did not declare this method.');
+    return;
+  }
+
+  var buildParams = function(paramNames, paramValues) {
+
+    var params = {},
+        index = 0;
+
+    paramNames.forEach(function(paramName) {
+      params[paramName] = paramValues[index];
+      index++;
+    });
+
+    return params;
+  };
+
+  for (var i in routes) {
+
+    if (! routes.hasOwnProperty(i)) {
+      continue;
     }
+    var route = routes[i],
+        parts = url.parse(message.resource),
+        matches = route.regexp.exec(parts.pathname);
 
-    var buildParams = function(paramNames, paramValues) {
+    if (matches) {
 
-      var params = {},
-          index = 0;
+      var req = {};
+      req.params = {};
 
-      paramNames.forEach(function(paramName) {
-        params[paramName] = paramValues[index];
-        index++;
-      });
+      matches.shift(); // pop the global one
+      var paramValues = matches;
 
-      return params;
-    };
+      log.trace('regexp:', route.regexp);
+      log.trace('resource:', message.resource);
+      log.trace('matches:', matches);
+      log.trace('paramValues', paramValues);
 
-    for (var i in routes) {
+      req.params = buildParams(route.paramNames, paramValues);
+      req.query = qs.parse(parts.query);
 
-      if (! routes.hasOwnProperty(i)) {
-        continue;
-      }
-      var route = routes[i],
-          parts = url.parse(message.resource),
-          matches = route.regexp.exec(parts.pathname);
-
-      if (matches) {
-
-        var req = {};
-        req.params = {};
-
-        matches.shift(); // pop the global one
-        var paramValues = matches;
-
-        log.trace('regexp:', route.regexp);
-        log.trace('resource:', message.resource);
-        log.trace('matches:', matches);
-        log.trace('paramValues', paramValues);
-
-        req.params = buildParams(route.paramNames, paramValues);
-        req.query = qs.parse(parts.query);
-
-        if ('function' === typeof route.callback) {
-          route.callback(req, message);
-          break;
-        }
+      if ('function' === typeof route.callback) {
+        route.callback(req, message);
+        break;
       }
     }
+  }
 };
 
 /**
