@@ -3,7 +3,6 @@
 var crypto = require('crypto'),
     log = require('bunyan').log,
     url = require('url'),
-    mixin = require('utils-merge'),
     MxMqtt = require('./mxmqtt'),
     q = require('q'),
     qs = require('qs'),

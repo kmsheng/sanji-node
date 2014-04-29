@@ -1,7 +1,6 @@
 'use strict';
 
 var log = require('bunyan').log,
-    mixin = require('utils-merge'),
     mqtt = require('mqtt'),
     q = require('q'),
     util = require('util'),
