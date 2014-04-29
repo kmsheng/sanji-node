@@ -51,24 +51,28 @@ mxmqtt.receive = function(topic, message) {
       message = parsedMessage;
     }
 
-    if (! this.isValidResponseFormat(message)) {
-      log.error('Invalid response format');
-      return false;
+    if (this.isValidResponseFormat(message)) {
+
+      if (! this.deferredList.hasOwnProperty(message.id)) {
+        log.info('A message without message ID.', message);
+        return false;
+      }
+
+      if (200 === message.code) {
+        this.deferredList[message.id].resolve(message);
+      } else {
+        this.deferredList[message.id].reject(message);
+      }
+      delete this.deferredList[message.id];
+      return true;
     }
 
-    if (! this.deferredList.hasOwnProperty(message.id)) {
-      log.info('A message without message ID.', message);
-      return false;
+    if (this.isValidRequestFormat(message)) {
+      this.emit('message', topic, message);
+      return true;
     }
 
-    if (200 === message.code) {
-      this.deferredList[message.id].resolve(message);
-    } else {
-      this.deferredList[message.id].reject(message);
-    }
-    delete this.deferredList[message.id];
 
-    this.emit('message', topic, message);
 };
 
 /**
