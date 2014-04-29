@@ -14,8 +14,6 @@ var crypto = require('crypto'),
     qs = require('qs'),
     utils = require('./mxutils');
 
-exports = module.exports = createMxModel;
-
 mxmodel.defaultConfig = function() {
 
   this.set('description', 'This is a model without description.');
@@ -228,4 +226,6 @@ function createMxModel(options) {
 
   return mxmodel;
 }
+
+exports = module.exports = createMxModel;
 
