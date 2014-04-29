@@ -1,7 +1,7 @@
 ## Installation
 
-    $ npm install git+ssh://git@bitbucket.org:moxa-tw/mxmqtt.git#v0.0.2 --save
-    
+    $ npm install git+ssh://git@bitbucket.org:moxa-tw/mxmqtt.git#{semantic-version} --save
+   
 ## Usage
 
 ```
