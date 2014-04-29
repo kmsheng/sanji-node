@@ -72,7 +72,16 @@ mxmqtt.receive = function(topic, message) {
       return true;
     }
 
+};
 
+/**
+ * Get the settings' value.
+ *
+ * @api public
+ */
+
+mxmqtt.get = function(setting) {
+  return this.settings[setting];
 };
 
 /**

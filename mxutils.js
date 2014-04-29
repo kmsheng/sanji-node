@@ -9,16 +9,6 @@ exports.init = function() {
 };
 
 /**
- * Get the settings' value.
- *
- * @api public
- */
-
-exports.get = function(setting) {
-  return this.settings[setting];
-};
-
-/**
  * Set the settings' value.
  *
  * @api public
