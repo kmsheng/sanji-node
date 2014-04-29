@@ -1,7 +1,4 @@
 'use strict';
-/**
- * MxCloud Model
- */
 
 var crypto = require('crypto'),
     log = require('bunyan').log,
@@ -13,6 +10,14 @@ var crypto = require('crypto'),
     util = require('util'),
     MxUtils = require('./mxutils');
 
+/**
+ * Creates an instance of MxModel
+ * @constructor
+ * @this {MxModel}
+ * @param {object} options common settings go here.
+ * @example
+ * var mxmodel = new MxModel({host: '192.168.27.133'});
+ */
 function MxModel(options) {
 
   MxUtils.call(this);
@@ -30,6 +35,10 @@ function MxModel(options) {
 
 util.inherits(MxModel, MxUtils);
 
+/**
+ * Sets the default configuration of MxModel
+ * @private
+ */
 MxModel.prototype.defaultConfig = function() {
 
   this.set('description', 'This is a model without description.');
@@ -53,6 +62,10 @@ MxModel.prototype.defaultConfig = function() {
   this.routes = [];
 };
 
+/**
+ * Sets the tunnel of MxModel
+ * @return {promise} A promise object of q.
+ */
 MxModel.prototype.setTunnel = function(newTunnel) {
 
   var deferred = q.defer(),
@@ -78,6 +91,10 @@ MxModel.prototype.setTunnel = function(newTunnel) {
   return deferred.promise;
 };
 
+/**
+ * Deregister a name from MxController
+ * @return {promise} A promise object of q.
+ */
 MxModel.prototype.deregister = function() {
 
   var deferred = q.defer(),
@@ -104,6 +121,10 @@ MxModel.prototype.deregister = function() {
   return deferred.promise;
 };
 
+/**
+ * Get the registration info from MxModel's settings
+ * @return {object} Registration info
+ */
 MxModel.prototype.getRegistrationInfo = function() {
 
   var modelInfo = ['name', 'resources', 'role', 'hook', 'description', 'tunnel', 'ttl'],
@@ -115,10 +136,19 @@ MxModel.prototype.getRegistrationInfo = function() {
   return properties;
 };
 
+/**
+ * Make a sanji framework standard mqtt request with MxModel's current topic
+ * @param {string} message The message to be sent
+ * @return {promise} Promise object of q
+ */
 MxModel.prototype.request = function(message) {
   return this.mxmqtt.request(this.get('topic'), message);
 };
 
+/**
+ * To register MxModel's name from MxController
+ * @return {promise} Promise object of q
+ */
 MxModel.prototype.register = function() {
 
   var deferred = q.defer(),
@@ -155,10 +185,21 @@ MxModel.prototype.register = function() {
   return deferred.promise;
 };
 
+/**
+ * To publish a message with current topic
+ * @param {string} message Message to be sent
+ * @return {promise} Promise object of q
+ */
 MxModel.prototype.publish = function(message) {
   this.mxmqtt.publish(this.get('topic'), message);
 };
 
+/**
+ * To receive messages by mqtt's on message event
+ * and dispatch to each stored callback
+ * @param {string} topic Mqtt topic
+ * @param {string} message Mqtt message
+ */
 MxModel.prototype.onMessage = function(topic, message) {
 
     var routes = this.routes[message.method];
@@ -214,6 +255,9 @@ MxModel.prototype.onMessage = function(topic, message) {
     }
 };
 
+/**
+ * Start to mqtt instance
+ */
 MxModel.prototype.listen = function() {
   this.mxmqtt.listen();
   this.mxmqtt.mqtt.on('connect', this.connect.bind(this));
@@ -221,14 +265,26 @@ MxModel.prototype.listen = function() {
   this.mxmqtt.mqtt.on('close', this.close.bind(this));
 };
 
+/**
+ * Set a mxmqtt's settings
+ * @param {string} setting Property of mxmqtt's setting
+ * @param {string} value Value of mxmqtt's setting
+ */
 MxModel.prototype.setMxMqtt = function(setting, value) {
   return this.mxmqtt.set(setting, value);
 };
 
+/**
+ * Get a mxmqtt's settings
+ * @param {string} setting Property of mxmqtt's setting
+ */
 MxModel.prototype.getMxMqtt = function(setting) {
   return this.mxmqtt.get(setting);
 };
 
+/**
+ * Callback bind to mqtt's connect
+ */
 MxModel.prototype.connect = function() {
 
   var self = this,
@@ -250,6 +306,12 @@ MxModel.prototype.connect = function() {
   }
 };
 
+/**
+ * Parse param names from url
+ * @example
+ * /student/:student_id/book/:book_id // ['student_id', 'book_id']
+ * @return {array}
+ */
 var parseParam = function(url) {
 
   var names = [],
@@ -264,6 +326,12 @@ var parseParam = function(url) {
   return names;
 };
 
+/**
+ * Turn an url into regexp object
+ * @example
+ * /student/:student_id/book/:book_id // new RegExp('^\/student\/([\w\-\_]+)\/book\/([\w\-\_]+)$');
+ * @return {object} RegExp object
+ */
 var resourceToRegExp = function(resource) {
   var replacedStr = resource.replace(/:[\w\-]+/g, '([\\w\\-\\_]+)')
                       .replace(/\//g, '\\/');
@@ -272,6 +340,13 @@ var resourceToRegExp = function(resource) {
 
 ['get', 'post', 'put', 'delete'].forEach(function(method) {
 
+  /**
+   * get, post, put, delete listeners of MxModel
+   * @example
+   * mxmodel.post('/student/:student_id/book/:book_id', function(req, message) {
+   *  // do something here
+   * });
+   */
   MxModel.prototype[method] = function(key, callback) {
 
     if ((1 === arguments.length) && ('get' === method)) {
