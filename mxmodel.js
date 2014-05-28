@@ -240,8 +240,6 @@ MxModel.prototype.onMessage = function(topic, message) {
 
       var req, res, paramValues;
 
-      req.params = {};
-
       matches.shift(); // pop the global one
       paramValues = matches;
 
