@@ -205,4 +205,16 @@ MxMqtt.prototype.request = function(topic, message) {
   return deferred.promise;
 };
 
+MxMqtt.prototype.response = function(topic, message) {
+
+  message = this.setMessageId(message);
+
+  if (! this.isValidResponseFormat(message)) {
+    log.error('Invalid response format.');
+  } else {
+    this.publish(topic, message);
+  }
+  log.trace('response', topic, message);
+};
+
 exports = module.exports = MxMqtt;
