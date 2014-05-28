@@ -144,6 +144,10 @@ MxModel.prototype.request = function(message) {
   return this.mxmqtt.request(this.get('topic'), message);
 };
 
+MxModel.prototype.response = function(message) {
+  return this.mxmqtt.response(this.get('topic'), message);
+};
+
 /**
  * To register MxModel's name from MxController
  * @return {promise} Promise object of q
