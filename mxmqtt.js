@@ -60,7 +60,8 @@ MxMqtt.prototype.receive = function(topic, message) {
         return;
       }
 
-      if (200 === message.code) {
+      // accept 2xx status code
+      if ((message.code >= 200) && (message.code < 300)) {
         this.deferredList[message.id].resolve(message);
       } else {
         this.deferredList[message.id].reject(message);
