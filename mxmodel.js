@@ -205,6 +205,8 @@ MxModel.prototype.publish = function(message) {
  */
 MxModel.prototype.onMessage = function(topic, message) {
 
+  var self = this;
+
   var routes = this.routes[message.method];
 
   if (! Array.isArray(routes)) {
@@ -236,22 +238,46 @@ MxModel.prototype.onMessage = function(topic, message) {
 
     if (matches) {
 
-      var req = {};
+      var req, res, paramValues;
+
       req.params = {};
 
       matches.shift(); // pop the global one
-      var paramValues = matches;
+      paramValues = matches;
 
       log.trace('regexp:', route.regexp);
       log.trace('resource:', message.resource);
       log.trace('matches:', matches);
       log.trace('paramValues', paramValues);
 
+      req = {};
       req.params = buildParams(route.paramNames, paramValues);
       req.query = qs.parse(parts.query);
+      req.id = message.id;
+      req.body = message.data || {};
+
+      res = {
+        code: 200,
+        status: function(code) {
+          this.code = code;
+          return this;
+        },
+        send: function(message) {
+
+          var newMessage;
+
+          newMessage = {};
+          newMessage.id = req.id;
+          newMessage.code = res.code;
+          newMessage.data = message;
+          self.response(newMessage);
+
+          return this;
+        }
+      };
 
       if ('function' === typeof route.callback) {
-        route.callback(req, message);
+        route.callback(req, res);
         break;
       }
     }
