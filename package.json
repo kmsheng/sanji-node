@@ -1,6 +1,6 @@
 {
   "name": "mxmqtt",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "description": "Moxa MQTT Client",
   "main": "mxmodel.js",
   "scripts": {
