@@ -255,6 +255,7 @@ MxModel.prototype.onMessage = function(topic, message) {
       req.query = qs.parse(parts.query);
       req.id = message.id;
       req.body = message.data || {};
+      req.validTime = message.validTime;    // peter want this
 
       res = {
         code: 200,
