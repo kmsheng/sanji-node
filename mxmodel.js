@@ -58,6 +58,8 @@ MxModel.prototype.defaultConfig = function() {
   this.set('ttl', 5);
   this.set('tunnel', 'TempTunnel_' + crypto.randomBytes(8).toString('hex'));
 
+  this.set('qos', 2);
+
   this.routes = [];
 };
 
@@ -140,8 +142,10 @@ MxModel.prototype.getRegistrationInfo = function() {
  * @param {string} message The message to be sent
  * @return {promise} Promise object of q
  */
-MxModel.prototype.request = function(message) {
-  return this.mxmqtt.request(this.get('topic'), message);
+MxModel.prototype.request = function(message, options, callback) {
+  options = options || {};
+  options.qos = options.qos || this.get('qos');
+  return this.mxmqtt.request(this.get('topic'), message, options, callback);
 };
 
 MxModel.prototype.response = function(message) {
