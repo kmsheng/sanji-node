@@ -186,7 +186,13 @@ MxMqtt.prototype.isValidResponseFormat = function(message) {
  * @param {string} message Mqtt message
  * @return {promise} A promise object of q
  */
-MxMqtt.prototype.request = function(topic, message) {
+MxMqtt.prototype.request = function(topic, message, options, callback) {
+
+  options = options || {};
+  callback = callback || function() {};
+
+  options.qos = options.qos || 2;
+  options.retain = options.retain || 0;
 
   var deferred = q.defer();
 
@@ -198,7 +204,7 @@ MxMqtt.prototype.request = function(topic, message) {
   } else {
 
     this.deferredList[message.id] = deferred;
-    this.publish(topic, message);
+    this.publish(topic, message, options, callback);
   }
   log.trace('request', topic, message);
 
