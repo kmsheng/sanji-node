@@ -231,6 +231,64 @@ MxModel.prototype.onMessage = function(topic, message) {
     return params;
   };
 
+  var makeResponse = function(id) {
+
+    var res = {
+      code: 200,
+      locals: {},
+      status: function(code) {
+        this.code = code;
+        return this;
+      },
+      send: function(message) {
+
+        var newMessage;
+
+        newMessage = {};
+        newMessage.id = id;
+        newMessage.code = res.code;
+        newMessage.data = message;
+        self.response(newMessage);
+
+        return this;
+      }
+    };
+
+    return res;
+  };
+
+  // return true if need to break the loop
+  var handleCallbacks = function(req, res, callbacks) {
+
+    var index, next, callback;
+
+    if (! callbacks) {
+      return true;
+    }
+
+    index = 0;
+
+    next = function() {
+
+      if (index >= callbacks.length) {
+        return;
+      }
+
+      var cb = callbacks[++index];
+      if ('function' === typeof cb) {
+        cb(req, res, next);
+      }
+    };
+
+    callback = callbacks[0];
+
+    if ('function' === typeof callback) {
+      callback(req, res, next);
+      return true;
+    }
+    return false;
+  };
+
   for (var i in routes) {
 
     if (! routes.hasOwnProperty(i)) {
@@ -259,30 +317,9 @@ MxModel.prototype.onMessage = function(topic, message) {
       req.body = message.data || {};
       req.validTime = message.validTime;    // peter want this
 
-      res = {
-        code: 200,
-        status: function(code) {
-          this.code = code;
-          return this;
-        },
-        send: function(message) {
+      res = makeResponse(req.id);
 
-          var newMessage;
-
-          newMessage = {};
-          newMessage.id = req.id;
-          newMessage.code = res.code;
-          newMessage.data = message;
-          self.response(newMessage);
-
-          return this;
-        }
-      };
-
-      if ('function' === typeof route.callback) {
-        route.callback(req, res);
-        break;
-      }
+      handleCallbacks(req, res, route.callbacks);
     }
   }
 };
@@ -379,7 +416,7 @@ var resourceToRegExp = function(resource) {
    *  // do something here
    * });
    */
-  MxModel.prototype[method] = function(key, callback) {
+  MxModel.prototype[method] = function(key) {
 
     if ((1 === arguments.length) && ('get' === method)) {
       return this.settings[key];
@@ -392,10 +429,13 @@ var resourceToRegExp = function(resource) {
       this.routes[method] = [];
     }
 
+    var callbacks = Array.prototype.slice.call(arguments);
+    callbacks.shift();
+
     this.routes[method].push({
       resource: resource,
       regexp: resourceToRegExp(resource),
-      callback: callback,
+      callbacks: callbacks,
       paramNames: paramNames
     });
 
