@@ -210,7 +210,6 @@ MxModel.prototype.publish = function(message) {
 MxModel.prototype.onMessage = function(topic, message) {
 
   var self = this;
-
   var routes = this.routes[message.method];
 
   if (! Array.isArray(routes)) {
@@ -289,6 +288,8 @@ MxModel.prototype.onMessage = function(topic, message) {
     return false;
   };
 
+  var matchOnce = false;
+
   for (var i in routes) {
 
     if (! routes.hasOwnProperty(i)) {
@@ -300,8 +301,9 @@ MxModel.prototype.onMessage = function(topic, message) {
 
     if (matches) {
 
-      var req, res, paramValues;
+      var req, res, paramValues, needBreak;
 
+      matchOnce = true;
       matches.shift(); // pop the global one
       paramValues = matches;
 
@@ -319,9 +321,25 @@ MxModel.prototype.onMessage = function(topic, message) {
 
       res = makeResponse(req.id);
 
-      handleCallbacks(req, res, route.callbacks);
+      needBreak = handleCallbacks(req, res, route.callbacks);
+
+      if (needBreak) {
+        break;
+      }
     }
+  }    // end for-loop
+
+  if (! matchOnce) {
+
+      self.response({
+        id: message.id,
+        code: 404,
+        data: {
+          message: 'Cannot ' + message.method.toUpperCase() + ' ' + message.resource + '.'
+        }
+      });
   }
+
 };
 
 /**
