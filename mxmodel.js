@@ -142,7 +142,7 @@ MxModel.prototype.deregister = function() {
  */
 MxModel.prototype.getRegistrationInfo = function() {
 
-  var modelInfo = ['name', 'resources', 'role', 'hook', 'description', 'tunnel', 'ttl'],
+  var modelInfo = ['name', 'resources', 'role', 'hook', 'description', 'ttl'],
       properties = {};
 
   for (var i = modelInfo.length - 1; i >= 0; i--) {
