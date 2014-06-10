@@ -410,12 +410,20 @@ MxModel.prototype.connect = function() {
     log.info('[%s] MxMQTT is connected.', name);
     log.debug('[%s] MxMQTT is registering...', name);
 
-    self.register()
-      .then(function() {
-        self.enable('registered');
-        log.info('[%s] MxMQTT is registered.', name);
-        self.emit('registered');
-      });
+    (function loop() {
+      self.register()
+        .then(function() {
+          self.enable('registered');
+          log.info('[%s] MxMQTT is registered.', name);
+          self.emit('registered');
+        }, function(ret) {
+
+          // re-try every 1 sec if controller is busy
+          if (403 === ret.code) {
+            setTimeout(loop, 1000);
+          }
+        });
+    })();
   }
 };
 
