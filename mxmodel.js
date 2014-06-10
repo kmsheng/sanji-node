@@ -100,24 +100,36 @@ MxModel.prototype.setTunnel = function(newTunnel) {
  */
 MxModel.prototype.deregister = function() {
 
-  var deferred = q.defer(),
-      name = this.get('name'),
-      self = this;
+  var deferred, name, self, deregister, tunnel;
 
-  this.request({
-    method: 'delete',
-    resource: '/controller/registration/' + name
-  })
-  .then(function(message) {
+  deferred = q.defer();
+  self = this;
+  name = self.get('name');
+  tunnel = self.get('tunnel');
+
+  deregister = function() {
+
+    log.debug('[%s] Subscribe %s', name, tunnel);
+
+    self.request({
+      method: 'delete',
+      resource: '/controller/registration/' + name,
+      tunnel: self.get('tunnel')
+    })
+    .then(function(message) {
       self.set('registered', false);
       deferred.resolve(message);
 
       log.debug('[%s] De-Register successfully !', name);
-  })
-  .catch(function(err) {
-    deferred.reject(err);
-    log.debug('[%s] De-Register error !', name);
-  });
+    })
+    .catch(function(err) {
+      deferred.reject(err);
+      log.debug('[%s] De-Register error !', name);
+    });
+  };
+
+  self.mxmqtt.subscribe(tunnel)
+    .then(deregister);
 
   log.debug('[%s] De-Register request is sent', name);
 
