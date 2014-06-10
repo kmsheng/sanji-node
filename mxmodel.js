@@ -69,9 +69,11 @@ MxModel.prototype.defaultConfig = function() {
  */
 MxModel.prototype.setTunnel = function(newTunnel) {
 
-  var deferred = q.defer(),
-      name = this.get('name'),
-      tunnel = this.get('tunnel');
+  var deferred, name, tunnel;
+
+  deferred = q.defer();
+  name = this.get('name');
+  tunnel = this.get('tunnel');
 
   // unsubscribe the old tunnel
   if (null !== tunnel && tunnel !== newTunnel) {
