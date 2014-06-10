@@ -172,35 +172,47 @@ MxModel.prototype.response = function(message) {
  */
 MxModel.prototype.register = function() {
 
-  var deferred = q.defer(),
-      name = this.get('name'),
-      self = this,
-      tunnel = this.get('tunnel');
+  var deferred, name, self, tunnel, setTunnel, registeredTunnel;
 
-  self.deregister();
+  deferred = q.defer();
+  name = this.get('name');
+  self = this;
+  tunnel = this.get('tunnel');
+  registeredTunnel = this.get('registeredTunnel');
 
-  self.setTunnel(tunnel)
-    .then(function() {
+  setTunnel = function() {
 
-      self.request({
-        method: 'post',
-        resource: '/controller/registration',
-        data: self.getRegistrationInfo()
-      })
-      .then(function(message) {
+    self.setTunnel(tunnel)
+      .then(function() {
 
-        self.setTunnel(message.data.tunnel).then(function() {
+        self.request({
+          method: 'post',
+          resource: '/controller/registration',
+          data: self.getRegistrationInfo(),
+          tunnel: self.get('tunnel')
+        })
+        .then(function(message) {
 
-          self.enable('registered');
+          self.setTunnel(message.data.tunnel).then(function() {
 
-          log.debug('[%s] Register successfully! tunnel: %s', name, message.data.tunnel);
-          deferred.resolve(message.data.tunnel);
+            self.enable('registered');
+
+            log.debug('[%s] Register successfully! tunnel: %s', name, message.data.tunnel);
+            deferred.resolve(message.data.tunnel);
+          });
+        }, function(message) {
+          log.debug('[%s] Register failed!', name, message);
+          deferred.reject(message);
         });
-      }, function(message) {
-        deferred.reject(message);
-      });
 
-      log.debug('[%s] Register request is sent', name);
+        log.debug('[%s] Register request is sent', name);
+      });
+  };
+
+  self.deregister()
+    .then(setTunnel)
+    .catch(function(err) {
+      log.debug('[%s] De-Register request failed', name, err);
     });
 
   return deferred.promise;
