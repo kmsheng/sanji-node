@@ -27,7 +27,7 @@ mxmodel.on('registered', function() {
 });
 
 // support get, post, put, delete methods
-mxmodel.get('/network/cellular/1', function(req, message) {
+mxmodel.get('/network/cellular/1', function(req, res) {
   // do something here
 });
 
@@ -41,8 +41,13 @@ mxmodel.get('/network/cellular/1', function(req, message) {
   }
 }
 */
-mxmodel.post('/device/:device_id', function(req, message) {
+mxmodel.post('/device/:device_id', function(req, res) {
   console.log(req.params.device_id); // 123
   console.log(req.query.tag_names);  // apple,orange,banana
+  console.log(req.body);
+
+  // reply
+  res.status(404)
+    .send({message: 'Not found.'});
 });
 ```
