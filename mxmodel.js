@@ -418,8 +418,8 @@ MxModel.prototype.connect = function() {
           self.emit('registered');
         }, function(ret) {
 
-          // re-try every 1 sec if controller is busy
-          if (403 === ret.code) {
+          // re-try every 1 sec if status code isn't 200
+          if (200 !== ret.code) {
             setTimeout(loop, 1000);
           }
         });
