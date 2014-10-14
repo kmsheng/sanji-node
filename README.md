@@ -1,6 +1,6 @@
 ## Installation
 
-    $ npm install git+ssh://git@bitbucket.org:moxa-tw/mxmqtt.git#{semantic-version} --save
+    $ npm install git+ssh://git@github.com:Sanji-IO/sanji-node.git --save
    
 ## Usage
 
